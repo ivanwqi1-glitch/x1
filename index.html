@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha Vida Financeira</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+body{background:#f4f6f8;color:#1f2937;min-height:100vh}
+header{background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:30px 20px}
+.header-content{max-width:1200px;margin:auto}
+header h1{font-size:30px;margin-bottom:8px} header p{color:#d1d5db}
+.container{max-width:1200px;margin:30px auto;padding:0 20px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:25px}
+.card,.panel,.chart-box{background:#fff;border-radius:16px;padding:22px;box-shadow:0 5px 20px rgba(0,0,0,.06)}
+.card-title{font-size:14px;color:#6b7280;margin-bottom:10px}.card-value{font-size:25px;font-weight:bold}
+.green{color:#16a34a}.red{color:#dc2626}.blue{color:#2563eb}.purple{color:#7c3aed}
+.panel{margin-bottom:25px}.panel h2{margin-bottom:20px;font-size:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:15px}.form-group{display:flex;flex-direction:column}
+.form-group label{font-size:13px;margin-bottom:7px;color:#4b5563;font-weight:bold}
+input,select{padding:12px;border:1px solid #d1d5db;border-radius:9px;font-size:14px;outline:none;background:#fff}
+input:focus,select:focus{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+.form-button{margin-top:20px;display:flex;gap:10px}
+button{border:0;border-radius:9px;padding:12px 20px;cursor:pointer;font-weight:bold;transition:.2s}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-danger{background:#fee2e2;color:#dc2626}.btn-danger:hover{background:#fecaca}
+.btn-secondary{background:#e5e7eb;color:#374151}.btn-secondary:hover{background:#d1d5db}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}.filters select,.filters input{min-width:160px}
+.table-container{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:14px;background:#f9fafb;font-size:13px;color:#6b7280}
+td{padding:14px;border-bottom:1px solid #e5e7eb;font-size:14px}tr:hover td{background:#fafafa}
+.income{color:#16a34a;font-weight:bold}.expense{color:#dc2626;font-weight:bold}
+.delete-btn{background:#fee2e2;color:#dc2626;padding:7px 10px;font-size:12px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:20px}.chart-box h3{margin-bottom:20px}
+.bar-container{margin-bottom:15px}.bar-info{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.bar-bg{height:12px;background:#e5e7eb;border-radius:20px;overflow:hidden}.bar{height:100%;background:#2563eb;border-radius:20px;transition:width .4s}
+.economy-box{text-align:center}.economy-circle{width:160px;height:160px;border-radius:50%;border:15px solid #e5e7eb;margin:20px auto;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.economy-circle strong{font-size:30px;color:#16a34a}.economy-circle span{font-size:12px;color:#6b7280}
+.empty{text-align:center;padding:30px;color:#9ca3af}.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.badge-income{background:#dcfce7;color:#15803d}.badge-expense{background:#fee2e2;color:#b91c1c}
+footer{text-align:center;padding:30px;color:#9ca3af;font-size:13px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
+@media(max-width:600px){header h1{font-size:24px}.container{padding:0 12px}.cards{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.card-value{font-size:22px}}
+</style>
+</head>
+<body>
+<header><div class="header-content"><h1>💰 Minha Vida Financeira</h1><p>Controle seus gastos, acompanhe suas receitas e descubra quanto você está economizando.</p></div></header>
+<div class="container">
+<section class="cards">
+<div class="card"><div class="card-title">Saldo Atual</div><div id="saldo" class="card-value blue">R$ 0,00</div></div>
+<div class="card"><div class="card-title">Total de Entradas</div><div id="entradas" class="card-value green">R$ 0,00</div></div>
+<div class="card"><div class="card-title">Total de Gastos</div><div id="gastos" class="card-value red">R$ 0,00</div></div>
+<div class="card"><div class="card-title">Economia</div><div id="economia" class="card-value purple">R$ 0,00</div></div>
+</section>
+
+<section class="panel">
+<h2>➕ Adicionar lançamento</h2>
+<form id="financeForm">
+<div class="form-grid">
+<div class="form-group"><label>Tipo</label><select id="tipo" required><option value="entrada">Entrada</option><option value="gasto">Gasto</option></select></div>
+<div class="form-group"><label>Descrição</label><input type="text" id="descricao" placeholder="Ex: Mercado" required></div>
+<div class="form-group"><label>Categoria</label><select id="categoria" required>
+<option value="Salário">Salário</option><option value="Alimentação">Alimentação</option><option value="Moradia">Moradia</option><option value="Transporte">Transporte</option><option value="Lazer">Lazer</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Compras">Compras</option><option value="Contas">Contas</option><option value="Investimentos">Investimentos</option><option value="Outros">Outros</option>
+</select></div>
+<div class="form-group"><label>Valor</label><input type="number" id="valor" placeholder="0,00" min="0.01" step="0.01" required></div>
+</div>
+<div class="form-grid" style="margin-top:15px"><div class="form-group"><label>Data</label><input type="date" id="data" required></div></div>
+<div class="form-button"><button type="submit" class="btn-primary">Adicionar lançamento</button><button type="button" class="btn-danger" onclick="limparTudo()">Apagar tudo</button></div>
+</form>
+</section>
+
+<section class="panel">
+<h2>📋 Meus lançamentos</h2>
+<div class="filters">
+<input type="month" id="filtroMes">
+<select id="filtroTipo"><option value="todos">Todos</option><option value="entrada">Entradas</option><option value="gasto">Gastos</option></select>
+<select id="filtroCategoria"><option value="todas">Todas as categorias</option></select>
+<button class="btn-secondary" onclick="limparFiltros()">Limpar filtros</button>
+</div>
+<div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Ação</th></tr></thead><tbody id="tabelaLancamentos"></tbody></table></div>
+</section>
+
+<div class="charts">
+<section class="chart-box"><h3>📊 Gastos por categoria</h3><div id="graficoCategorias"></div></section>
+<section class="chart-box economy-box"><h3>🏦 Taxa de economia</h3><div class="economy-circle"><strong id="percentualEconomia">0%</strong><span>economizado</span></div><p id="mensagemEconomia">Adicione suas receitas e gastos para acompanhar sua economia.</p></section>
+</div>
+</div>
+<footer>Minha Vida Financeira • Seus dados ficam salvos neste navegador.</footer>
+
+<script>
+const STORAGE_KEY="minhaVidaFinanceira";
+let lancamentos=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
+const form=document.getElementById("financeForm"),tipo=document.getElementById("tipo"),descricao=document.getElementById("descricao"),categoria=document.getElementById("categoria"),valor=document.getElementById("valor"),data=document.getElementById("data"),filtroMes=document.getElementById("filtroMes"),filtroTipo=document.getElementById("filtroTipo"),filtroCategoria=document.getElementById("filtroCategoria");
+data.value=new Date().toISOString().split("T")[0];
+
+function formatarMoeda(n){return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n)}
+function salvar(){localStorage.setItem(STORAGE_KEY,JSON.stringify(lancamentos))}
+form.addEventListener("submit",e=>{e.preventDefault();lancamentos.push({id:Date.now(),tipo:tipo.value,descricao:descricao.value.trim(),categoria:categoria.value,valor:Number(valor.value),data:data.value});salvar();form.reset();data.value=new Date().toISOString().split("T")[0];atualizarTudo()});
+function excluir(id){lancamentos=lancamentos.filter(x=>x.id!==id);salvar();atualizarTudo()}
+function limparTudo(){if(!lancamentos.length){alert("Não existem lançamentos para apagar.");return}if(confirm("Tem certeza que deseja apagar TODOS os lançamentos?")){lancamentos=[];salvar();atualizarTudo()}}
+[filtroMes,filtroTipo,filtroCategoria].forEach(x=>x.addEventListener("change",atualizarTudo));
+function limparFiltros(){filtroMes.value="";filtroTipo.value="todos";filtroCategoria.value="todas";atualizarTudo()}
+function obterFiltrados(){return lancamentos.filter(x=>(!filtroMes.value||x.data.startsWith(filtroMes.value))&&(filtroTipo.value==="todos"||x.tipo===filtroTipo.value)&&(filtroCategoria.value==="todas"||x.categoria===filtroCategoria.value))}
+function atualizarResumo(){
+const dados=obterFiltrados();let entradas=0,gastos=0;
+dados.forEach(x=>x.tipo==="entrada"?entradas+=x.valor:gastos+=x.valor);
+const saldo=entradas-gastos,percentual=entradas>0?(saldo/entradas)*100:0;
+document.getElementById("entradas").textContent=formatarMoeda(entradas);
+document.getElementById("gastos").textContent=formatarMoeda(gastos);
+document.getElementById("saldo").textContent=formatarMoeda(saldo);
+document.getElementById("economia").textContent=formatarMoeda(saldo);
+document.getElementById("percentualEconomia").textContent=Math.max(percentual,0).toFixed(1)+"%";
+document.getElementById("mensagemEconomia").textContent=entradas===0?"Adicione suas receitas e gastos para acompanhar sua economia.":percentual>=30?"Você está conseguindo guardar uma boa parte das suas entradas.":percentual>=10?"Você está economizando. Continue acompanhando seus gastos.":percentual>0?"Sua economia está positiva, mas os gastos estão consumindo boa parte das entradas.":"Seus gastos estão iguais ou acima das suas entradas.";
+}
+function atualizarTabela(){
+const tabela=document.getElementById("tabelaLancamentos"),dados=obterFiltrados();tabela.innerHTML="";
+if(!dados.length){tabela.innerHTML='<tr><td colspan="6" class="empty">Nenhum lançamento encontrado.</td></tr>';return}
+dados.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(x=>{
+const tr=document.createElement("tr"),income=x.tipo==="entrada",badge=income?"badge-income":"badge-expense";
+tr.innerHTML=`<td>${formatarData(x.data)}</td><td>${escaparHTML(x.descricao)}</td><td>${escaparHTML(x.categoria)}</td><td><span class="badge ${badge}">${income?"Entrada":"Gasto"}</span></td><td class="${income?"income":"expense"}">${income?"+":"-"} ${formatarMoeda(x.valor)}</td><td><button class="delete-btn" onclick="excluir(${x.id})">Excluir</button></td>`;
+tabela.appendChild(tr)});
+}
+function atualizarCategorias(){
+const atual=filtroCategoria.value,cats=[...new Set(lancamentos.map(x=>x.categoria))].sort();
+filtroCategoria.innerHTML='<option value="todas">Todas as categorias</option>';
+cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;filtroCategoria.appendChild(o)});
+filtroCategoria.value=cats.includes(atual)?atual:"todas";
+}
+function atualizarGrafico(){
+const c=document.getElementById("graficoCategorias"),dados=obterFiltrados(),cats={};
+dados.forEach(x=>{if(x.tipo==="gasto")cats[x.categoria]=(cats[x.categoria]||0)+x.valor});
+c.innerHTML="";const vals=Object.values(cats);
+if(!vals.length){c.innerHTML='<div class="empty">Ainda não existem gastos registrados.</div>';return}
+const maior=Math.max(...vals);
+Object.entries(cats).sort((a,b)=>b[1]-a[1]).forEach(([nome,v])=>{const d=document.createElement("div");d.className="bar-container";d.innerHTML=`<div class="bar-info"><span>${escaparHTML(nome)}</span><strong>${formatarMoeda(v)}</strong></div><div class="bar-bg"><div class="bar" style="width:${(v/maior)*100}%"></div></div>`;c.appendChild(d)});
+}
+function formatarData(s){if(!s)return"-";const p=s.split("-");return`${p[2]}/${p[1]}/${p[0]}`}
+function escaparHTML(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function atualizarTudo(){atualizarCategorias();atualizarResumo();atualizarTabela();atualizarGrafico()}
+atualizarTudo();
+</script>
+</body>
+</html>
